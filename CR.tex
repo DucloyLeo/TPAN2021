@@ -1,0 +1,720 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[frenchb]{babel}
+\usepackage{libertine}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+% Pour tracer des courbes et divers graphiques, et utiliser des couleurs
+\usepackage{pstricks}
+\usepackage{pstricks-add}
+\usepackage{hyperref} %Hyperlien pour les equations
+\usepackage{listingsutf8}
+\usepackage{color}
+\usepackage{movie15} %mettre des gif (ne fonctionne pas)
+\usepackage{wrapfig}
+
+
+\makeatletter
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\newcommand{\hsp}{\hspace{20pt}}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newlength{\boxed@align@width}
+\newcommand{\boxedalign}[3][black]{
+  \hspace*{\fboxsep}\hspace*{\fboxrule}% pour que le centrage soit le même que la formule avec \boxed
+  \color{#1}#2
+  &
+  \setlength{\boxed@align@width}{%
+     \widthof{$\displaystyle#2$}+\fboxsep+\fboxrule}%
+  \hspace{-\boxed@align@width}%
+  \addtolength{\boxed@align@width}{-\fboxsep-\fboxrule}%
+  \begingroup
+    \color{#1}\boxed{\vphantom{#2}\hspace{\boxed@align@width}#3}%
+  \endgroup
+}
+\newcommand*\centermathcell[1]{\omit\hfil$\displaystyle#1$\hfil\ignorespaces}
+% This is the default font in Spyder
+\newcommand*{\pyfontfamily}{\fontfamily{DejaVuSansMono-TLF}\selectfont}
+\makeatother
+
+% These are close to the default font colors in Spyder
+\definecolor{pycommentcol}{RGB}{153,153,153}		% gray
+\definecolor{pystatecol}{RGB}{198,112,224}		% violet
+\definecolor{pystringcol}{RGB}{176,230,134}		% green
+\definecolor{pyinbuiltscol}{rgb}{0.55,0.15,0.55}	% plum
+\definecolor{pyspecialcol}{rgb}{0.8,0.45,0.12}	% orange
+\definecolor{spyderbackground}{RGB}{25,35,45}		% Background
+\definecolor{basiccol}{RGB}{255,255,255}			% white
+\definecolor{numbercol}{RGB}{250,237,92}			% number
+
+\lstdefinestyle{stylepython}{
+	    inputencoding=utf8,
+        language=Python, 
+        basicstyle=\color{basiccol}\pyfontfamily, 
+        commentstyle=\color{pycommentcol}\itshape,
+        emph={self,cls,@classmethod,@property}, % Custom highlighting
+		emphstyle=\color{pyspecialcol}\itshape, % Custom highlighting style
+		numberstyle=\color{numbercol}
+		morestring=[b]{"""},
+		stringstyle=\color{pystringcol},
+		keywordstyle=\color{pystatecol},        % statements
+		% remove any inbuilt functions from keywords
+		deletekeywords={print},
+		% add any inbuilts, not statements
+		morekeywords={print,None,TypeError},
+		keywordstyle=\color{pyinbuiltscol},   
+        numberstyle=\tiny,  
+%       mathescape,  
+%       showstringspaces=false,   
+%       tabsize=2,   
+        framexleftmargin=5mm,  
+%       framexrightmargin=5pt,
+%       framexbottommargin=5pt
+        xleftmargin=0mm,  
+        keepspaces=false,   
+        classoffset=1,     
+        numbers=left,    
+        stepnumber=1,    
+        numbersep=8pt,   
+        showstringspaces=false,  
+        frame=single,
+        framerule=1pt,
+        rulecolor=\color{black}, 
+%       breaklines=true,  
+%       rulesepcolor=\color{blue}, %avec frame=shadowsbox
+        backgroundcolor=\color{spyderbackground}
+}
+
+\lstset{literate=%
+   *{0}{{{\color{numbercol}0}}}1
+    {1}{{{\color{numbercol}1}}}1
+    {2}{{{\color{numbercol}2}}}1
+    {3}{{{\color{numbercol}3}}}1
+    {4}{{{\color{numbercol}4}}}1
+    {5}{{{\color{numbercol}5}}}1
+    {6}{{{\color{numbercol}6}}}1
+    {7}{{{\color{numbercol}7}}}1
+    {8}{{{\color{numbercol}8}}}1
+    {9}{{{\color{numbercol}9}}}1
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \begin{sffamily}
+  \begin{center}
+
+    % Upper part of the page. The '~' is needed because \\
+    % only works if a paragraph has started.
+    \includegraphics[scale=0.15]{img1.EPS}~\\[1.5cm]
+
+    \textsc{\LARGE INSA de Toulouse}\\[2cm]
+
+    \textsc{\Large Compte Rendu TP d'analyse numérique 1}\\[1.5cm]
+
+    % Titre
+    \HRule \\[0.4cm]
+    { \huge \bfseries Application des séries de Fourier à l’étude du violon\\[0.4cm] }
+
+    \HRule \\[2cm]
+    \includegraphics[scale=0.25]{img2.EPS}\\[4cm]
+
+    % Auteurs
+      \begin{flushleft} \large
+        Ducloy Léo\\
+        Oscamou Kévin\\
+        Promo 57\\
+      \end{flushleft}
+
+    \vfill
+
+    % Bas de page
+    {\large 9 Janvier 2022}
+
+  \end{center}
+  \end{sffamily}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+\subsection{Résumé}
+Nous avons eu deux types de séances de travaux pratique en analyse numérique. Des séances tournées vers l'approche théorique et d'autres vers la programation en \textit{Python}.
+\subsection{Objectifs}
+L’objectif de ce TP est de créer un semblant de violon numérique en faisant jouer des sons de
+"violon" à l’ordinateur. Ce TP comporte des travaux théoriques de modélisation du mouvement
+d’une corde de violon et des travaux numériques de programmation de ces résultats.
+
+A l’issue des 2 séances de TD et 3 séances de TP (1 séance de TD préparatoire au premier TP,
+1 séance préparatoire aux deux autres), vous rendrez par \textbf{binôme} un \textbf{rapport} sur l’ensemble
+du TP (théorique + numérique). Les questions à traiter en TP (et donc à programmer) sont
+indiquées par le symbole suivant \fbox{\textbf{TP}} .
+
+\section{\'Etude du mouvement de la corde de violon}
+La corde en question possède les propriétés physiques suivante : \\
+\begin{itemize}
+\item Une masse par unité de longueur $\mu = 6.10^{-4} \ kg.m^{-1}$,
+\item Une tension $\tau=200 \ N$ réglée lors de l'accord du violon par le musicien,
+\item Une longueur $L=0.5 \ m$. \\
+\end{itemize}
+La relation fondamentale de la dynamique permet alors d'écrire
+\begin{equation}
+\label{eqn:d2tftx}
+	\partial^{2}_{t} f(t,x)=c^2\partial^{2}_{x} f(t,x) \quad x \in [0,L], \quad t \geq 0
+\end{equation}
+où $c=\sqrt{\frac{\tau}{\mu}}>0$. On lui associe les conditions aux limites et conditions initiales suivantes :
+\begin{equation}
+\label{eqn:conditionsftx}
+	\begin{matrix*}[l]
+		\ (i)	&f(t,0)=f(t,L)=0 									&\forall t \geq 0, \\
+		(ii) 	&f(0,x)=0, \ \partial_{t}f(0,x)=\alpha(L-x)\qquad 	&\forall x \in [0,L],
+	\end{matrix*}
+\end{equation} 
+où $\alpha=0.1$. \\
+On pose $u=x-ct$ et $v=x+ct$ et on définit l'application linéaire $\varphi$ de la facon suivante :
+\[
+\begin{matrix}
+\varphi:\mathbb{R}^{+}\times [0,L] & \rightarrow & \varphi(\mathbb{R}^{+}\times [0,L])=\Omega \\
+(t,x) & \rightarrow & (u+v)=(x-ct,x+ct) \\
+\end{matrix}
+\]
+De plus on pose
+\begin{equation}
+\label{eqn:ftx}
+f(t,x)=F(x-ct,x+ct)=F(u,v)
+\end{equation}
+\newpage
+\subsection{Résolution par onde progressive}
+\subsubsection{Montrer que $\varphi$ est un difféomorphisme de classe $C^2$}
+\noindent Tout d'abord, l'application $\varphi$ est un difféomorphisme de clase $C^2$
+\[
+ssi : \
+\begin{cases}
+\varphi$ est de classe $C^2 \\
+\varphi$ est bijective $ \\
+\varphi^{-1}$ est de classe $C^2 \\
+\end{cases}
+\]
+\begin{itemize}
+\item $\varphi$ est de classe $C^1$ ssi $\frac{\partial f}{\partial t}$ et $\frac{\partial f}{\partial x}$ existent et sont continue
+\item $\varphi$ est de classe $C^2$ ssi $\frac{\partial f}{\partial t}$ et $\frac{\partial f}{\partial x}$ existent et sont de classe $C^1$ \\
+\end{itemize}
+\[
+\forall (t,x)\in \mathbb{R}^2,\quad \frac{\partial f}{\partial t}(t,x)=(-c,c) \text{ et } \frac{\partial f}{\partial x}(t,x)=(1,1)
+\]
+Ce sont deux des fonctions constante, donc de classe $C^{\infty}$ \\
+On a enfin, \\
+\[
+\forall (t,x)\in \mathbb{R}^2,\quad \frac{\partial^2 f}{\partial t^2}(t,x)=\frac{\partial^2 f}{\partial x^2}(t,x)=\frac{\partial^2 f}{\partial t \partial x}(t,x)=\frac{\partial^2 f}{\partial x \partial t}(t,x)=(0,0)
+\]
+$\varphi$ est de classe $C^2$ sur $\mathbb{R}^2$ \\ \\
+Pour que $\varphi$ soit bijective il faut qu'il existe un unique couple $(t,x)$ appartenant à $\mathbb{R}^+ \times [0,L]$ tel que $(u,v)=\varphi (t,x)$ \\
+Or on a ,
+\[
+\begin{matrix}
+u=x-ct & \text{ et } & v=x+ct \\
+t=\frac{v-u}{2c} & \text{ et } & x= \frac{u+v}{2}
+\end{matrix}
+\]
+Alors,
+\begin{equation}
+\varphi^{-1}(u,v)=(\frac{v-u}{2c},\frac{u+v}{2})
+\end{equation}
+$\varphi$ est donc bijective sur $\mathbb{R}^2$
+\[
+\forall (u,v)\in \mathbb{R}^2,\quad \frac{\partial \varphi^{-1}}{\partial u}(u,v)=(\frac{-1}{2c},\frac{1}{2}) \text{ et } \frac{\partial \varphi^{-1}}{\partial v}(u,v)=(\frac{1}{2c},\frac{1}{2})
+\]
+Ce sont deux des fonctions constante, donc de classe $C^{\infty}$ \\
+Finalement, $\varphi$ est bien un difféomorphisme de classe $C^2$
+\subsubsection{Calculer $\Omega = \varphi(\mathbb{R}^{+}\times [0,L])$}
+\noindent On a, $\Omega=\varphi (\mathbb{R}^+ \times [0;L])$ \\ \\
+Et on sait que : $t=\frac{v-u}{2c} \geq 0 \qquad $et$ \qquad 0 \leq \frac{u+v}{2}=x \leq L$ \\ \\
+Cela implique que $\forall (u,v)\in \mathbb{R}^2 \quad $ on a$ \quad v\geq u, \qquad v\geq -u, \qquad v\leq 2L-u$
+\newpage
+On obtient la représentation d'$\Omega$ suivante :
+\begin{figure}[!h]
+\centering
+\begin{pspicture}(-5,-5)(5,5)
+\psaxes[xLabels={,-4L,-3L,-2L,-L,0,L,2L,3L,4L},yLabels={,-4L,-3L,-2L,-L,0,L,2L,3L,4L}]{->}(0,0)(-5,-5)(5,5)[$u$,-45][$v$,180]
+\psgrid[griddots=5, subgriddiv=0, gridlabels=0pt](-5,-5)(5,5)
+\pspolygon[fillstyle=hlines,hatchcolor=gray,linestyle=none](-5,5)(0,0)(1,1)(-3,5)
+\psline[linecolor=blue](5,5)(-5,-5)
+\psline[linecolor=red](-5,5)(5,-5)
+\psline[linecolor=green](-3,5)(5,-3)
+\rput(4,4.75){\color{blue}$v=u$}
+\rput(-4,3.25){\color{red}$v=-u$}
+\rput(4.6,-1.5){\color{green}$v=2L-u$}
+\rput(-2,3){\large\textbf{$\Omega$}}
+\end{pspicture}
+\caption{Représentation d'$\Omega$}
+\end{figure}
+
+Finalement, $\Omega=[-\infty ;L]\times \mathbb{R}^+$
+\subsubsection{Exprimer $\partial^{2}_{t} f(t,x)$ en fonction de $ \partial^{2}_{u} F(u,v),\partial^{2}_{v} F(u,v),\partial^{2}_{uv} F(u,v)$}
+Tout d'abord on a : $f(t,x)=F(u,v)=F(\varphi (t,x))=F\circ \varphi (t,x)$
+\[
+\begin{matrix}
+\frac{\partial f}{\partial t}(t,x) & = & \frac{\partial F}{\partial u}(\varphi(t,x)).\frac{\partial u}{\partial t} + \frac{\partial F}{\partial v}(\varphi(t,x)).\frac{\partial v}{\partial t} \\[0.4cm]
+\frac{\partial}{\partial t}F\circ \varphi(t,x) & = & -c\frac{\partial F}{\partial u}(\varphi(t,x)) +c\frac{\partial F}{\partial v}(\varphi(t,x))
+\end{matrix}
+\]
+On a par la suite :
+\begin{align}
+\frac{\partial^2 f}{\partial t^2}(t,x) &=\frac{\partial}{\partial t}\left(\frac{\partial f}{\partial t}\right) \notag \\
+&=\frac{\partial}{\partial t}\left( -c\frac{\partial F}{\partial u}(\varphi(t,x)) + c\frac{\partial F}{\partial v}(\varphi(t,x))\right) \notag \\ 
+&=-c\frac{\partial}{\partial t}\left( \frac{\partial F}{\partial u}\circ\varphi(t,x)\right) + c\frac{\partial}{\partial t}\left( \frac{\partial F}{\partial v}\circ\varphi(t,x))\right) \notag \\
+&=-c\left( -c\frac{\partial^2 F}{\partial u^2} + c\frac{\partial^2 F}{\partial u \partial v} \right) + c\left( -c\frac{\partial^2 F}{\partial u \partial v} + c\frac{\partial^2 F}{\partial v^2} \right) \notag \\
+\Aboxed{\frac{\partial^2 f}{\partial t^2}(t,x) &=c^2\frac{\partial^2 F}{\partial u^2}-2c^2\frac{\partial^2 F}{\partial u \partial v}+c^2\frac{\partial^2 F}{\partial v^2}}
+\end{align}
+\subsubsection{Exprimer $\partial^{2}_{x} f(t,x)$ en fonction de $ \partial^{2}_{u} F(u,v),\partial^{2}_{v} F(u,v),\partial^{2}_{uv} F(u,v)$}
+De la même manière on obtient $\frac{\partial^2 f}{\partial x^2}(t,x)$
+\[
+\begin{matrix}
+\frac{\partial f}{\partial x}(t,x) & = & \frac{\partial F}{\partial u}(\varphi(t,x)).\frac{\partial u}{\partial x} + \frac{\partial F}{\partial v}(\varphi(t,x)).\frac{\partial v}{\partial x} \\[0.4cm]
+\frac{\partial}{\partial x}F\circ \varphi(t,x) & = & \frac{\partial F}{\partial u}(\varphi(t,x)) +\frac{\partial F}{\partial v}(\varphi(t,x))
+\end{matrix}
+\]
+On a par la suite :
+\begin{align}
+\frac{\partial^2 f}{\partial x^2}(t,x) &=\frac{\partial}{\partial x}\left(\frac{\partial f}{\partial x}\right) \notag \\
+&=\frac{\partial}{\partial x}\left( \frac{\partial F}{\partial u}(\varphi(t,x)) + \frac{\partial F}{\partial v}(\varphi(t,x))\right) \notag \\ 
+&=\frac{\partial}{\partial x}\left( \frac{\partial F}{\partial u}\circ\varphi(t,x)\right) + \frac{\partial}{\partial t}\left( \frac{\partial F}{\partial v}\circ\varphi(t,x))\right) \notag \\
+\Aboxed{\frac{\partial^2 f}{\partial x^2}(t,x) &=\frac{\partial^2 F}{\partial u^2}+\frac{\partial^2 F}{\partial u \partial v}+\frac{\partial^2 F}{\partial v^2}}
+\end{align}
+\subsubsection{Si $f$ est solution de $\eqref{eqn:ftx}$, trouver l'EDP satisfaite par $F$}
+D'après l'équation \eqref{eqn:conditionsftx} on peut écrire :
+\begin{align}
+0	&=\frac{\partial^2 f}{\partial t^2}(t,x)-c^2\frac{\partial^2 f}{\partial x^2}(t,x) \notag \\
+	&=c^2\frac{\partial^2 F}{\partial u^2}-2c^2\frac{\partial^2 F}{\partial u \partial v}+c^2\frac{\partial^2 F}{\partial v^2}-c^2\frac{\partial^2 F}{\partial v^2}-2c^2\frac{\partial^2 F}{\partial u \partial v}-c^2\frac{\partial^2 F}{\partial v^2} \notag \\
+	&=-4c^2\frac{\partial^2 F}{\partial u \partial v} \Longrightarrow \boxed{\frac{\partial^2 F}{\partial u \partial v}(u,v)=0} 
+\end{align}
+On trouve finalement que l'équation au dérivées partielles satisfaite par $F$ si $f$ est solution de \eqref{eqn:d2tftx} est : $\frac{\partial^2 F}{\partial u \partial v}(u,v)=0$
+\subsubsection{Montrer que $F$ peut s'écrire $F(u,v)=h(u)+g(v)$}
+\noindent Les fonctions $h$ et $g$ sont de classe $C^2$ sur $\mathbb{R}$. On a,
+\begin{equation*}
+	\frac{\partial}{\partial u}\left( \frac{\partial F}{\partial v} \right)=0 \Longrightarrow \frac{\partial F}{\partial v} =C
+\end{equation*}
+où $C$ est une constante par rapport à $u$. Alors $\frac{\partial F}{\partial v}=a(v)$. De manière équivalente on trouve que $\frac{\partial F}{\partial u}=b(u)$.
+\begin{equation*}
+	F(u,v)=A(v)+B(u)
+\end{equation*}
+\begin{equation*}
+	f(t,x)=F(\varphi(t,x))=A(x+ct)+B(x-ct)\qquad \forall(t,x) \in \mathbb{R}^+ \times [0,L]
+\end{equation*}
+\subsubsection{Trouver $h$ et $g$ pour que $f$ soit solution de \eqref{eqn:conditionsftx}}
+
+D'après la condition aux limites (\ref{eqn:conditionsftx}.i) on obtient $h(-ct)+g(ct)=0$. Et par linéarité on peut écrire $h(-t)=-g(t)$. Finalement, $f$ est de la forme :
+\begin{equation*}
+	f(t,x)=h(x-ct)-h(-x-ct)
+\end{equation*}
+De plus grâce à la condition initiale (\ref{eqn:conditionsftx}.ii) on obtient $h(x)-h(-x)=0 \Longleftrightarrow h(x)=h(-x)$. \textbf{h est donc paire}. On déduit de la condition aux limites (\ref{eqn:conditionsftx}.i) :
+\begin{equation*}
+	h(L-ct)-h(-L-ct)=0 \Longleftrightarrow h(L-ct)=h(-L-ct)
+\end{equation*}
+En posant $z=L-ct$ on obtient $h(2L-z)=h(z)$. Etant donné que $h$ est paire, on peut dire  que $h$ est \textbf{2L-périodique} et que $f$ s'écrit $f(t,x)=h(x-ct)-h(x+ct)$. De plus,
+\begin{align*}
+	\partial_{t}f(t,x)	&=-c.h'(x-ct)-c.h'(x+ct) \\
+	\partial_{t}f(0,x)	&=-c.h'(x)-c.h'(x)=-2c.h'(x)
+\end{align*}
+En utilisant maintenant la deuxième condition initiale (\ref{eqn:conditionsftx}.ii) on peut écrire $\partial_{t}f(0,x)=-2c.h'(x)=\alpha(L-x)$. Alors $\forall x \in [0,L]$ on a
+\begin{align*}
+	h'(x)	&=\frac{-\alpha}{2c}(L-x) \\
+	h(x)		&=\frac{\alpha}{4c}(L-x)^2+C
+\end{align*}
+Or, $f(t,L)=0 \Longrightarrow h(L)=0 \Longrightarrow C=0$ donc $h(x)=\frac{\alpha}{4c}(x-L)^2$ de plus pour assurer la partié de $h$ on absolutise la variable. On obtient alors $\forall x \in [-L,L]$
+\begin{equation*}
+	h(x)=\frac{\alpha}{4c}(L- \lvert x \rvert )^2
+\end{equation*}
+Etant donner que $g(x)=-h(-x)$ et que $f(t,x)=h(x-ct)+g(x+ct)$
+\begin{equation*}
+f(t,x)=\frac{\alpha}{4c}\left( \left( L-\lvert x-ct \rvert)\right)^2-\left(L-\lvert x+ct \rvert \right)^2\right)
+\end{equation*}
+Avec h et g de la forme suivante
+\begin{align}
+	\Aboxed{h(x-ct) &= \frac{\alpha}{4c}\left(L-\lvert x-ct \rvert \right)^2} \\
+	\Aboxed{g(x+ct) &= -\frac{\alpha}{4c}\left(L-\lvert x+ct \rvert \right)^2}
+\end{align}
+On se propose maintenant de déterminer l'intervalle de temps sur lequel $f$ décrit le mouvement de la corde et donc de déterminer également la période $T$.
+\begin{alignat*}{4}
+	-L 			&\leq && \ x-ct \				&&\leq L \\
+	-L-x 		&\leq && \centermathcell{-ct}	&&\leq L-x \\
+	-2L 			&\leq && \centermathcell{-ct}	&&\leq L \\
+	\frac{-L}{c}	&\leq && \centermathcell{t}		&&\leq \frac{2L}{c} \\
+	\frac{-T}{2}	&\leq && \centermathcell{t}		&&\leq T
+\end{alignat*}
+De la même manière pour $x+ct \in [-L,L]$ on obtient $-T \leq t \leq \frac{T}{2}$. On obtient finalement que $\frac{-T}{2} \leq t \leq \frac{T}{2}$ avec $T=\frac{2L}{c}$.
+\newpage
+\subsubsection{Tracage des fonctions $h$, $g$ et $f$ à l'aide de \textit{python}}
+Pour tracer les courbes de $h$, $g$ et $f$ pour des valeur de $t=0,\frac{T}{4},\frac{T}{2},\frac{3T}{4}$ et $T$ on utiliseras le langage de programmation \textit{Python}. Voici ci-dessous le code des 3 fonctions :
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{12cm} %--------------------------------------
+\begin{lstlisting}[style=stylepython]
+#Definition de nos fonction g, h et f
+def solexacte_g(t,x):
+    tp = (t+T/2)%T-T/2
+    sg = -(alpha/(4*c))*((L-abs(x+c*tp))**2)
+    return sg
+
+def solexacte_h(t,x):
+    tp = (t+T/2)%T-T/2
+    sh = (alpha/(4*c))*((L-abs(x-c*tp))**2)
+    return sh
+
+def solexacte(t,x):
+    tp = (t+T/2)%T-T/2
+    s = (alpha/(4*c))*((L-abs(x-c*tp))**2)
+    - (alpha/(4*c))*((L-abs(x+c*tp))**2)
+    return s
+
+\end{lstlisting}
+\end{minipage} %--------------------------------------------
+\caption{Code des 3 fonction $h$, $g$ et $f$}
+\end{figure}
+Après avoir explicité toutes nos variables on peut réaliser le tracage des courbes pour différentes valeurs de $T$. \\
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=1]{Courbes1.EPS}\\
+\caption{Courbes de $g$, $h$ et $f$ pour différentes valeurs de $t$}
+\end{figure}
+
+Sur ces quatres courbes, on peut voir l'approximation de la corde grâce à $f$ en noir. La courbe est dans les quatres cas fixée aux extrémités en $x=0$ et $x=L$.De plus, elle semble avoir un comportement cohérant avec la réalité avec un mouvement oscillant et étant T-périodique comme on peut le voir ci-dessous avec la courbe en $t=T$. En effet, la corde à la même position qu'en $t=0$. Cependant, on remarque que c'est également le cas en $\frac{T}{2}$ mais ici on se trouve à la demi période.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=1]{Courbes1aT.EPS}\\
+\caption{Courbes de $g$, $h$ et $f$ pour $t=T$}
+\end{figure}
+
+\noindent Voici ci-après, une animation des trois courbes sur toute la période $T$. \\
+\url{https://urlz.fr/h26l}
+\subsection{Résolution par méthode de séparation des variables}
+\subsubsection{Recherche d'une solution élémentaire $F_n(t,x)$ avec $n \in \mathbb{R}^*$}
+Tout d'abord nous avons le problème $(E_1)$ suivant :	
+\begin{equation}
+\label{eqn:probleme}
+(E_{1}) \
+\begin{cases}
+\partial^{2}_{t} f(t,x)=c^2\partial^{2}_{x} f(t,x) &\forall x \in [0,L], \forall t \geq 0 \\
+f(t,0)=u(t,L)=0, &\forall t \leq 0 \\
+f(0,x)=0 \quad \partial_t f(0,x)=\alpha (L-x) \quad &\forall x \in [0,L]
+\end{cases}
+\end{equation}
+On cherche une fonction $f(t,x)$ de la forme
+\begin{equation}
+\label{eqn:Eq1sepvar}
+	f(t,x)=\varphi(x) \psi(t), \quad \forall(t,x) \in \mathbb{R}^+ \times [0,L]
+\end{equation}
+vérifiant les conditions aux limites (\ref{eqn:conditionsftx}.i). \\
+On peut déterminer les expressions des dérivées partielles de $f(t,x)$
+\begin{alignat*}{2}
+	&\partial_{t} f(t,x)		&&=\varphi(x) \psi'(t) \\
+	&\partial^{2}_{t} f(t,x)	&&=\varphi(x) \psi''(t) \\
+	&\partial_{x} f(t,x)		&&=\varphi'(x) \psi(t) \\
+	&\partial^{2}_{x} f(t,x)	&&=\varphi''(x) \psi(t)
+\end{alignat*}
+En remplaçant l'expression\eqref{eqn:Eq1sepvar} de $f$ dans l'équation \eqref{eqn:d2tftx} avec les expressions de $\partial^{2}_{t} f(t,x)$ et $\partial^{2}_{x} f(t,x)$
+\begin{equation*}
+	\varphi(x) \psi''(t)=c^2.\varphi''(x) \psi(t)
+\end{equation*}
+On obtient alors le système d'équation suivant :
+\begin{equation*}
+	\exists \lambda \in \mathbb{R} \ \text{tel que} \
+	\begin{cases}
+		\psi ''(t)-\lambda \psi (t) =0 \\
+		c^2 \varphi''(x)-\lambda \varphi (x)=0	
+	\end{cases}
+\end{equation*}
+En s'intéressant aux conditions aux limites (\ref{eqn:conditionsftx}.ii) on a
+\begin{equation*}
+	\begin{cases}
+		f(t,0)=\varphi(0) \psi(t)=0 \\
+		f(t,L)=\varphi(L) \psi(t)=0	
+	\end{cases}
+\end{equation*}
+Cependant,on cherche un solution non nulle, ce qui implique $\varphi(0)=\varphi(L)=0$
+
+\noindent $\bullet$ Résolution de l'équation différentielle ordinaire en $x$:
+\begin{equation*}
+	(E_2) \
+	\begin{cases}
+		c^2 \varphi''(x)-\lambda \varphi (x)=0 \qquad \forall x \in [0,L] \\
+		\varphi(0)=\varphi(L)=0
+	\end{cases}
+\end{equation*}
+Polynôme caractéristique : $c^2 r^2-\lambda = 0 \Longrightarrow r^2 =\frac{\lambda}{c^2}$ \\
+
+\noindent $\ast$ \underline{Cas 1 : $\lambda>0$} : \\
+$r=\pm \sqrt{\frac{\lambda}{c^2}} \quad \Longrightarrow \varphi(x)=Ae^{\sqrt{\frac{\lambda}{c^2}}x}+Be^{-\sqrt{\frac{\lambda}{c^2}}x}$ \\
+Avec les conditions aux limites on a :
+\begin{equation*}
+	\begin{cases}
+		\varphi(0)=A+B=0 &\Longrightarrow A=-B \\
+		\varphi(L)=Ae^{\sqrt{\frac{\lambda}{c^2}}L}+Be^{-\sqrt{\frac{\lambda}{c^2}}L} &\Longrightarrow A=B=0
+	\end{cases}
+\end{equation*}
+Finalement, $\varphi(x)=0$ donc pas de solution non nulle. \\
+
+\noindent $\ast$ \underline{Cas 2 : $\lambda=0$} : \\
+$r=0 \quad \Longrightarrow \varphi(x)=Ax+B$ \\
+Avec les conditions aux limites on a :
+\begin{equation*}
+	\begin{cases}
+		\varphi(0)=B=0 &\Longrightarrow A=-B \\
+		\varphi(L)=AL=0 &\Longrightarrow A=0
+	\end{cases}
+\end{equation*}
+Finalement, $\varphi(x)=0$ donc pas de solution non nulle. \\
+
+\noindent $\ast$ \underline{Cas 3 : $\lambda<0$} : \\
+$r=\pm i\sqrt{\frac{\lambda}{c^2}} \quad \Longrightarrow \varphi(x)=A\ cos\left(\frac{\sqrt{-\lambda} x}{c}\right) +B\ sin\left(\frac{\sqrt{-\lambda} x}{c}\right)$\\
+Avec les conditions aux limites on a :
+\begin{equation*}
+	\begin{cases}
+		\varphi(0)=A=0  \\
+		\varphi(L)=B\ sin\left(\frac{\sqrt{-\lambda} L}{c}\right)=0
+	\end{cases}
+\end{equation*}
+Pour avoir une solution non nulle, il faut que $B \neq 0$ et donc que $sin\left(\frac{\sqrt{-\lambda} L}{c}\right)=0$ \\
+Soit $\frac{\sqrt{\lambda}L}{c}=n\pi$ avec $n \in \mathbb{N} \Longrightarrow \lambda_n=-\left(\frac{cn\pi}{L}\right)^2$ \\
+Finalement, $\boxed{\varphi_n(x)= sin \left(\frac{cn\pi}{L}\right)^2=sin \left(k_n x)\right)}$ avec $k_n=\frac{n\pi}{L}$ \\
+
+\noindent $\bullet$ Le produit scalaire usuel qui ortogonalise la famille de fonction $\varphi_n$ s'écrit
+\begin{equation*}
+\left\langle \varphi_n \vert \varphi_m \right\rangle = \int_{0}^{L} sin \left(\frac{n\pi x}{L}\right) sin \left(\frac{m\pi x}{L}\right)
+\end{equation*}
+De plus $\left\langle \varphi_n \vert \varphi_m \right\rangle=\frac{L}{2}$ si $n=m, \quad 0$ sinon \\
+
+\noindent $\bullet$ Résolution de l'équation différentielle ordinaire en $t$ :
+\begin{equation}
+	(E_3) \ \psi_n''(t)-\lambda_n \psi_n(t)=0
+\end{equation}
+Polynôme caractéristique : $r^2-\lambda_n =0 \Longrightarrow r^2=\lambda_n$ \\
+Or, on a $\displaystyle \lambda_n<0 \qquad r=\pm i\sqrt{-\lambda_n}=\pm i \frac{n\pi c}{L}$\\
+Alors $\psi_n$ est de la forme $\displaystyle \boxed{\psi_n(t)= A_n \, cos \left(\frac{cn\pi}{L}t\right)+B_n \, sin \left(\frac{cn\pi}{L}t\right)}$ \\[0.2cm]
+Avec $A_n, B_n \in \mathbb{R}$ et $f_n=\frac{nc}{2L}$ on a $psi_n=A_n \, cos \left(2\pi f_n t\right)+B_n \, sin \left(2\pi f_n t\right)$ \\
+Finalement, une solution élémentaire du problème s'écrit $F_n(t,x)=\psi(t)\varphi(x)$ donc
+\begin{equation*}
+	F_n(t,x)=\left( A_n \, cos \left(2\pi f_n t\right)+B_n \, sin \left(2\pi f_n t\right)\right)\,sin(k_n x)
+\end{equation*}
+\subsubsection{Lien entre $f_1$ et $f_n$}
+On a $f_1=\frac{c}{2L}$ et $f_n=\frac{nc}{2L}$ donc $\boxed{f_n=nf_1}$ \\
+\subsubsection{Recherche de la solution générale de l'équation des ondes}
+Soit $f(t,x)=\sum\limits_{n\geq 1} F(t,x)=\sum\limits_{n\geq 1} \psi(t)\varphi(x)$ donc
+\begin{equation}
+	\boxed{f(t,x)=\sum\limits_{n\geq 1}\left( A_n \, cos \left(2\pi f_n t\right)+B_n \, sin \left(2\pi f_n t\right)\right)\,sin(k_n x)}
+\end{equation}
+\subsubsection{Déterminer les constantes $A_n$ et $B_n$}
+En utilisant les conditions initiales (\ref{eqn:conditionsftx}.ii) on a $f(0,x)=0=\sum\limits_{n=1}^{+\infty} An\,sin(k_n x)$ \\
+Par unicité des coefficients dans le développement en série de Fourier $A_n=0$ \\
+De plus on a $\partial_t f(0,x)=\alpha(L-x)=\sum\limits_{n=1}^{+\infty} 2\pi f_n B_n sin(k_n x)$ \\
+Avec $\sum\limits_{n=1}^{+\infty} 2\pi f_n B_n sin(k_n x)$ 2L-périodique impaire.
+\newpage
+On définie un fonciton $u(x)=\alpha(L-x)$ 2L-périodique impaire  \\
+\begin{alignat*}{2}
+	a_n	&=\frac{2}{2L}	\int_{-L}^{L} u(x)\, cos(k_n x)\, dx=0 \\
+	b_n	&=\frac{2}{2L}	\int_{-L}^{L} u(x)\, sin(k_n x)\, dx \\
+		&=\frac{2}{L}	\int_{0}^{L} u(x)\, sin(k_n x)\, dx \\
+		&=\frac{2}{L}	\int_{0}^{L} \alpha(L-x)\, sin(k_n x)\, dx \\
+	b_n	&=\frac{2}{k_n}
+\end{alignat*}
+On a alors
+\begin{alignat*}{2}
+	\alpha(L-x)	&=\sum\limits_{n=1}^{+\infty} 2\pi f_n B_n sin(k_n x) \\
+				&=\sum\limits_{n=1}^{+\infty} \frac{2\alpha}{k_n} sin(k_n x)
+\end{alignat*}
+Donc $\displaystyle B_n=\frac{\alpha}{\pi f_n k_n}=\frac{2L^2 \alpha}{cn^2\pi^2}$ \\
+En résumé $\boxed{A_n=0}$ et $\displaystyle \boxed{B_n=\frac{2L^2 \alpha}{cn^2\pi^2}}$
+\subsubsection{Expression de l'unique solution de \eqref{eqn:d2tftx} et \eqref{eqn:conditionsftx}}
+L'unique expression de la solution est donc :
+\begin{equation}
+	f(t,x)=\sum\limits_{n=1}^{+\infty} \frac{2L^2 \alpha}{cn^2\pi^2}\,sin(2\pi f_n t)\,sin(k_n x)
+\end{equation}
+\subsubsection{Démontrer que l'érreur est inférieure à $\frac{2\alpha L}{c\pi^2 p}$}
+On a 
+\begin{alignat*}{3}
+	u_p(t,x)&=\sum\limits_{n=1}^{p} \frac{2L^2 \alpha}{cn^2\pi^2}\,sin(k_n x)\,sin(2\pi f_n t)\quad &&\forall(t,x) \\
+	\lvert f(t,x)-u_p(t,x) \rvert &=\sum\limits_{n=p+1}^{+\infty} \frac{2L^2 \alpha}{cn^2\pi^2}\,\lvert sin(k_n x)\,sin(2\pi f_n t) \rvert \qquad &&\forall(t,x)
+\end{alignat*}
+Cependant $\lvert sin(k_n x)\,sin(2\pi f_n t) \rvert \leq 1$ \\
+\begin{alignat*}{2}
+	\lvert f(t,x)-u_p(t,x) \rvert 	&\leq \sum\limits_{n=p+1}^{+\infty} \frac{2L^2 \alpha}{cn^2\pi^2} \\
+									&\leq \frac{2L^2 \alpha}{c\pi^2} \sum\limits_{n=p+1}^{+\infty} \frac{1}{n^2} \\
+									&\leq \frac{2L^2 \alpha}{c\pi^2} \int\limits_{p+1}^{+\infty} \frac{1}{n^2} dn \qquad \text{(approximation intégrale)} \\
+									&\leq \frac{2L^2 \alpha}{c\pi^2} \times \frac{1}{p+1} \quad \text{or} \quad \frac{1}{p}>\frac{1}{p+1}
+\end{alignat*}
+On a donc $\boxed{\lvert f(t,x)-u_p(t,x) \rvert \leq \frac{2L^2 \alpha}{c\pi^2 p}}$
+\subsubsection{Création d'une fonction $solapprochee(t,x,p)$ qui calcule $u_p(t,x)$ en \textit{python}}
+Voici ci-dessous le code de la fonction $solapprochee$ :
+\begin{figure}[h]
+\centering
+\begin{minipage}{12cm} %--------------------------------------
+\begin{lstlisting}[style=stylepython]
+def solapprochee(t,x,p):
+    Up = 0
+    for i in range(1, p+1):
+        fn = (i*c)/(2*L)
+        kn = (i*np.pi)/L
+        U = (2*alpha*L*L)/(i*i*np.pi**2*c)
+        *np.sin(kn*x)*np.sin(2*np.pi*fn*t)
+        Up = Up + U
+    return Up
+
+\end{lstlisting}
+\end{minipage} %--------------------------------------------
+\caption{Code de la fonction $solapprochee$}
+\end{figure}
+
+\subsubsection{Traçage de la fonction $u_p(t,x)$ pour $p=1,3,10,100$}
+Voici ci-après un graphique avec différentes courbes de $solapprochee$ pour différente valeurs de $p$ à $t=T/3$
+\newpage
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=1]{Courbes3.EPS}\\
+\caption{Courbes de $u_p(t,x)$ pour $p=1,3,10,100$}
+\end{figure}
+
+On remarque que plus $p$ augmente, plus l'approximation de $u_p$ est bonne. Ce qui est cohérant avec l'expression de la solution approchée.
+\subsubsection{Traçage de l'érreur en fonction de $p$}
+On se propose donc de tracer l'évolution de l'érreur en fonction de $p$.
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=1]{Courbes4Erreur.EPS}\\
+\caption{Courbes de l'érreur pour avec la majoration}
+\end{figure}
+
+On remarque sur cette figure que l'érreur est évidemment toujours inférieure à la majoration donnée par $\displaystyle \frac{2\alpha L}{c\pi^2 p}$.
+\newpage
+\section{Son produit par l'instrument}
+Le son produit par le violon peut être approché par la force exercée sur le chevalet par la
+corde. Ce chevalet est relié à la table des harmoniques d’où la note est émise, et correspond
+à la frontière de notre modèle située en $L$. Cette force est assimilée à la dérivée spatiale du mouvement de la corde en $L$. On définit donc $s(t)$ le son émis par le violon au court du temps par :
+\begin{equation}
+	s(t)=\frac{\partial}{\partial x}f(t,x)\vert_{x=L}=\sum\limits_{n=1}^{+\infty} d_n\, sin(2\pi f_n t)
+\end{equation}
+Et on définira $v_p$ une approximation du son émis par l'instrument à un instant $t$, la quantité :
+\begin{equation*}
+	v_p(t)=\sum\limits_{n=1}^{p} d_n\, sin(2\pi f_n t)
+\end{equation*}
+\subsubsection{Calcule de $d_n$}
+Dans un premier temps calculons $\frac{\partial}{\partial x}f(t,x)\vert_{x=L}$ \\
+\begin{alignat*}{2}
+	f(t,x)										&= \sum\limits_{n=1}^{+\infty} \frac{2L^2 \alpha}{cn^2\pi^2}\,sin(2\pi f_n t)\,sin(k_n x) \\
+	\frac{\partial}{\partial x}f(t,x)			&= \sum\limits_{n=1}^{+\infty} \frac{2L \alpha}{cn\pi}\,sin(2\pi f_n t)\,cos(\frac{n\pi}{L} x) \\
+	\frac{\partial}{\partial x}f(t,x)\vert_{x=L}	&= \sum\limits_{n=1}^{+\infty} \frac{2L \alpha}{cn\pi}\,(-1)^n\, sin\,(2\pi f_n t)
+\end{alignat*}
+On trouve finalement par identification que $d_n=\frac{2\alpha L}{cn\pi}(-1)^n$
+
+\subsubsection{Vérification que $\lvert d_n \rvert \underset{+\infty}{\backsim} \frac{1}{n}$}
+On a alors $\lvert d_n \rvert = \frac{2\alpha L}{cn\pi}= \frac{2\alpha L}{c\pi}\times \frac{1}{n}$. Donc $\lvert d_n \rvert \underset{n\rightarrow +\infty}{\backsim} \frac{1}{n}$
+\subsubsection{Traçage d'un diagramme en bar pour les 30 premières valeurs de $d_n$}
+Voici ci-dessous le code de la fonction $D_n$ :
+\begin{figure}[h]
+\centering
+\begin{minipage}{12cm} %--------------------------------------
+\begin{lstlisting}[style=stylepython]
+def Dn(N):
+    dn = (2*alpha*L)/(N*np.pi*c)*np.cos(N*np.pi)
+    return dn
+
+\end{lstlisting}
+\end{minipage} %--------------------------------------------
+\caption{Code de la fonction $D_n$}
+\end{figure}
+\newpage
+\noindent De plus, voici ci-dessous le diagramme en bar représentant les différentes valeurs de $d_n$ :
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.8]{Diagramme1.EPS}
+\caption{Diagramme en bar des valeurs de $d_n$}
+\end{figure}
+\subsubsection{Traçage de $v_p$ sur l'intervalle $[0,T]$}
+On va vouloir tracer $v_p$ sur l'intervalle $[0,T]$. Dans un premier temps, on défini $v_p$ sur python par la fonction suivante : \\
+\begin{figure}[h]
+\centering
+\begin{minipage}{12cm} %--------------------------------------
+\begin{lstlisting}[style=stylepython]
+def Vp(t,P):
+    vp = 0
+    for n in range(1,P+1):
+        vp = 2*alpha*L/(n*np.pi*c)*(-1)**n
+        *np.sin((n*np.pi*c)/L*t) + vp
+    return vp
+
+\end{lstlisting}
+\end{minipage} %--------------------------------------------
+\caption{Code de la fonction $Vp$}
+\end{figure} \\
+On trace ensuite $v_p$ sur la période $T$ autrement dit, sur l'intervalle $[0,T]$. On obtient donc la figure ci-dessous : \\
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{Courbe5VpT.EPS}\\
+\caption{Courbe de $v_p$ sur $T$}
+\end{figure}
+\subsubsection{Traçage de $v_p$ sur 2 secondes}
+Après avoir visualiser $v_p$ sur une période, on se propose de visualisé le son sur une durée de 2 secondes. Pour ce faire, on trace la courbe avec la même fonction $Vp$ mais sur une durée de 2 secondes.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1]{Courbe6Vp2sec.EPS}\\
+\caption{Courbe de $v_p$ sur 2 secondes}
+\end{figure}
+\subsubsection{Construction d'une fonction attenuation}
+Par la suite on souhaite attenuer notre fonction pour que le son produit soit plus réaliste. On défini donc une fonction enveloppe ("$envelop$") qui attenuera le début ainsi que la fin de notre son.
+\begin{figure}[h]
+\centering
+\begin{minipage}{13cm} %--------------------------------------
+\begin{lstlisting}[style=stylepython]
+def envelop(Interval,N):
+    env = np.ones(N)
+    
+    #profil de montee
+    x=np.linspace(0,0.5,int(sorted(Interval)[0]*N))
+    for k in range(0,len(x)-1):
+        env[k]=16*((1-x[k])*x[k])**2
+        *(x[k]/(2*l1))
+    				
+    #profil de descente
+    x=np.linspace(0.5,1,int(N-sorted(Interval)[1]*N))
+    for k in range(N+1-len(x),N+1):
+        env[k-1]=16*((1-x[k-(N+1-len(x))])
+        *x[k-(N+1-len(x))])**2
+        *((1-x[k-(N+1-len(x))])/(2*(1-l2)))
+    return env
+
+attenuation = envelop([l1,l2],2*fEch+1)
+
+\end{lstlisting}
+\end{minipage} %--------------------------------------------
+\caption{Code de la fonction $solapprochee$}
+\end{figure}
+\newpage
+\subsubsection{Traçage de $v_p$ atténuée sur 2 secondes}
+Après avoir défini notre fonction $envelop$ et créer notre vecteur $attenuation$ représentant le profil de montée et de descente on se propose de simplement visualiser la courbe d'attenuation.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1]{Courbe7enveloppe.EPS}\\
+\caption{Courbe de $attenuation$ sur 2 secondes}
+\end{figure} \\
+Maintenant, en multipliant notre fonction $Vp$ avec le vecteur $attenuation$ on obtient notre  signal atténué ci-dessous.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1]{Courbe8SonAmorti.EPS}\\
+\caption{Courbe de $v_p*attenuation$ sur 2 secondes}
+\end{figure}
+\subsubsection{Création des sons}
+Après avoir correctement défini nos fonctions du son et du son atténué. On se propose de générer les sons à l'aide d'un module python. Disponible en exécutant le programme python ou en lien ci-après.
+\section{Annexe}
+Lien du programme python : \href{https://github.com/DucloyLeo/TPAN2021.git}{Cliquez-ici} \\
+
+Lien téléchargement du son non amorti sur 2 secondes : \href{https://drive.google.com/uc?export=download&id=19MVfgDUoqnFzE0GcLlgDqclY-TrsQStx}{Cliquez-ici} \\
+
+Lien téléchargement du son amorti sur 2 secondes : \href{https://drive.google.com/uc?export=download&id=1E1k3nFMNvk4p9HQP9ZI2LJBZikAHHUWY}{Cliquez-ici} \\
+
+Lien du programme LaTeX : \href{https://github.com/DucloyLeo/TPAN2021.git}{Cliquez-ici} \\
+\end{document}
